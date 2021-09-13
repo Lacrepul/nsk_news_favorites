@@ -1,0 +1,7 @@
+/bitrix
+/test
+/upload
+/.idea
+*.tar*
+*.zip
+*.rar
