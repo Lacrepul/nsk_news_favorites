@@ -1,0 +1,45 @@
+{
+  "name": "nfk/pavel",
+  "description": "Development and support `nfk`",
+  "version": "0.0.1",
+  "type": "project",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Pavel Vasenev",
+      "email": "corvin055@mail.ru",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=7.2"
+  },
+  "require-dev": {
+    "composer/installers": "~1"
+  },
+  "extra": {
+    "installer-paths": {
+      "components/{$name}": [
+        "type:bitrix-component",
+        "type:bitrix-d7-component"
+      ],
+      "modules/{$name}": [
+        "type:bitrix-module",
+        "type:bitrix-d7-module"
+      ]
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": {
+      "*": "dist"
+    },
+    "disable-tls": true,
+    "secure-http": false
+  },
+  "autoload": {
+    "psr-4": {
+      "Citrus\\": "lib/Citrus/"
+    }
+  }
+}
