@@ -52,6 +52,11 @@ $arComponentParameters = [
             "VALUES" => $arIBlock,
             "REFRESH" => "Y"
         ],
+        "HIGHLOAD_IBLOCK_ID" => [
+            "PARENT" => "SETTINGS",
+            "NAME" => Loc::getMessage('NFK_COMPONENT_PROP_HIGHLOAD_IBLOCK_ID'),
+            "TYPE" => "STRING",
+        ],
         'CACHE_TIME' => ['DEFAULT' => 3600],
     ]
 ];

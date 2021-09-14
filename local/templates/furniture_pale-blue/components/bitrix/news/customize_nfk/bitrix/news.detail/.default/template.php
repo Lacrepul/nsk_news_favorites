@@ -1,5 +1,17 @@
-<? if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die(); ?>
+<? if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+
+use Bitrix\Main\Localization\Loc;
+
+CBitrixComponent::includeComponentClass("nfk:favorites");
+$favorites = new NfkFavorites;
+//$favorites->addFavorite();
+?>
+
 <div class="blog-detail">
+    <form action="/izbrannye-zapisi/" method="post">
+        <input name="add" value="<?= $arResult["ID"] ?>" hidden/>
+        <button class="blog_add-button"><?= Loc::getMessage("NEWS_DETAIL_ADD_BUTTON"); ?></button>
+    </form>
     <? if (!empty($arResult["DETAIL_PICTURE"]["SRC"])): ?>
         <div class="blog-detail-img">
             <img src="<?= $arResult["DETAIL_PICTURE"]["SRC"] ?>" width="<?= $arResult["DETAIL_PICTURE"]["WIDTH"] ?>"

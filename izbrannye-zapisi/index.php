@@ -8,9 +8,9 @@ $APPLICATION->SetTitle("Избранные записи");
 		"COMPONENT_TEMPLATE" => ".default",
 		"IBLOCK_TYPE" => "news",
 		"IBLOCK_ID" => "5",
-		"SECTION_IDS" => "",
 		"CACHE_TYPE" => "A",
-		"CACHE_TIME" => "3600"
+		"CACHE_TIME" => "3600",
+		"HIGHLOAD_IBLOCK_ID" => "2"
 	),
 	false
 );?><?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>
