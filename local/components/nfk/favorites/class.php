@@ -239,7 +239,15 @@ class NfkFavorites extends CBitrixComponent  implements Controllerable
     {
         $this->_checkModules();
         $this->_request = Application::getInstance()->getContext()->getRequest();
-        if ($this->StartResultCache($this->arParams["CACHE_TIME"], [$this->_request->getPost("delete"), $this->_request->getPost("add")])) {
+        if ($this->StartResultCache(
+            $this->arParams["CACHE_TIME"],
+            [
+                $this->_request->getPost("delete"),
+                $this->_request->getPost("add"),
+                $this->_user()->GetID()
+            ]
+        ))
+        {
             if (null !== $this->_request->getPost("delete")) {
                 $this->deleteFavorite($this->_request->getPost("delete"));
                 header("Location: {$this->_app()->GetCurPage()}");
