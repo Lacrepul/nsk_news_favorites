@@ -2,7 +2,7 @@
 <div class="wrapper-blog">
     <div class="cols-blog">
         <? foreach ($arResult["ITEMS"] as $arItem): ?>
-            <div class="col-blog" ontouchstart="this.classList.toggle('hover');">
+            <div class="col-blog">
                 <?
                 $this->AddEditAction($arItem['ID'], $arItem['EDIT_LINK'], CIBlock::GetArrayByID($arParams["IBLOCK_ID"], "ELEMENT_EDIT"));
                 $this->AddDeleteAction($arItem['ID'], $arItem['DELETE_LINK'], CIBlock::GetArrayByID($arParams["IBLOCK_ID"], "ELEMENT_DELETE"), array("CONFIRM" => GetMessage('NEWS_DELETE_CONFIRM')));

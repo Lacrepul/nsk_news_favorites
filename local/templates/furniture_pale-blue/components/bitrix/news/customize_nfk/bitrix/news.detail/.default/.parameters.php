@@ -22,5 +22,15 @@ $arTemplateParameters = array(
 		"TYPE" => "CHECKBOX",
 		"DEFAULT" => "Y",
 	),
+	"HIGHLOAD_IBLOCK_ID" => [
+		"PARENT" => "SETTINGS",
+		"NAME" => Loc::getMessage('T_IBLOCK_DESC_PROP_HIGHLOAD_IBLOCK_ID'),
+		"TYPE" => "STRING",
+	],
+	"LINK_TO_FAVORITES" => [
+		"PARENT" => "SETTINGS",
+		"NAME" => Loc::getMessage('T_IBLOCK_DESC_LINK_TO_FAVORITES'),
+		"TYPE" => "STRING",
+	],
 );
 ?>

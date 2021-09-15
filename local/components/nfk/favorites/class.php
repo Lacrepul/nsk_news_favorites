@@ -3,15 +3,35 @@
 use \Bitrix\Main\Loader;
 use \Bitrix\Main\Application;
 use \Bitrix\Highloadblock as HL;
-use \Bitrix\Main\Entity;
+use Bitrix\Main\Engine\Contract\Controllerable;
+use Bitrix\Main\Engine\ActionFilter;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
-class NfkFavorites extends CBitrixComponent
+class NfkFavorites extends CBitrixComponent  implements Controllerable
 {
     private $_request;
     private $highloadIblock;
     private $hlbItems;
+
+    /**
+     * @return array
+     */
+    public function configureActions()
+    {
+        return [
+            'test' => [
+                'prefilters' => [
+                    new ActionFilter\Authentication(),
+                    new ActionFilter\HttpMethod(
+                        array(ActionFilter\HttpMethod::METHOD_GET, ActionFilter\HttpMethod::METHOD_POST)
+                    ),
+                    new ActionFilter\Csrf(),
+                ],
+                'postfilters' => []
+            ]
+        ];
+    }
 
     /**
      * Проверка наличия модулей требуемых для работы компонента
@@ -73,12 +93,7 @@ class NfkFavorites extends CBitrixComponent
         }
         if ($params["IBLOCK_TYPE"] == '')
             $arParams["IBLOCK_TYPE"] = "blog";
-        if (empty($params["HIGHLOAD_IBLOCK_ID"])) {
-            throw new \Exception('Не заполнен идентификатор хайлоад блока');
-        } else {
-            $params["HIGHLOAD_IBLOCK_ID"] = intval($params["HIGHLOAD_IBLOCK_ID"]);
-        }
-
+        $params["HIGHLOAD_IBLOCK_ID"] = intval($params["HIGHLOAD_IBLOCK_ID"]);
         $arParams["IBLOCK_ID"] = trim($arParams["IBLOCK_ID"]);
 
         return $params;
@@ -88,10 +103,12 @@ class NfkFavorites extends CBitrixComponent
      * Получаем хайлоадблок
      * @throws Exception
      */
-    public function getHighloadIblock()
+    public function getHighloadIblock($hlbId = "") //todo: Переделать под гетлист
     {
         try {
-            $hlblock = HL\HighloadBlockTable::getById($this->arParams["HIGHLOAD_IBLOCK_ID"])->fetch();
+            $this->_checkModules();
+            $id = !empty($hlbId) ? $hlbId : $this->arParams["HIGHLOAD_IBLOCK_ID"];
+            $hlblock = HL\HighloadBlockTable::getById($id)->fetch();
             $entity = HL\HighloadBlockTable::compileEntity($hlblock);
             $entityData = $entity->getDataClass();
             $this->highloadIblock = $entityData;
@@ -105,6 +122,7 @@ class NfkFavorites extends CBitrixComponent
      */
     public function getUserFavorites()
     {
+        $this->getHighloadIblock();
         $currentUser = $this->_user()->GetID();
         $rsData = $this->highloadIblock::getList(array(
             "select" => array("*"),
@@ -153,27 +171,19 @@ class NfkFavorites extends CBitrixComponent
      */
     public function deleteFavorite($id)
     {
+        $this->getHighloadIblock();
         $this->highloadIblock::Delete($id);
     }
 
     /**
-     * @param $idElement
+     * @param $elementId
+     * @param $hlbId
+     * @return bool
      * @throws Exception
-     * Добавляем данные в хайлоад блок
      */
-    public function addFavorite($elementId)
+    public function isHlbElementExist($elementId, $hlbId)
     {
-        if ($this->isHlbElementExist($elementId)) {
-            $data = array(
-                "UF_USER_ID" => $this->_user()->GetID(),
-                "UF_BLOG_ELEMENT_ID" => $elementId
-            );
-            $this->highloadIblock::add($data);
-        }
-    }
-
-    public function isHlbElementExist($elementId)
-    {
+        $this->getHighloadIblock($hlbId);
         $currentUser = $this->_user()->GetID();
         $rsData = $this->highloadIblock::getList([
             "select" => ["*"],
@@ -184,7 +194,45 @@ class NfkFavorites extends CBitrixComponent
             ]
         ])->fetch();
 
-        return is_array($rsData) ? false : true;
+        return is_array($rsData) ? true : false;
+    }
+
+    /**
+     * @param string $elementId
+     * @param string $hlbId
+     * @return null[]
+     * @throws Exception
+     */
+    public function addAction($elementId = '', $hlbId = '')
+    {
+        $this->_checkModules();
+        $this->getHighloadIblock($hlbId);
+        $result = null;
+        if (!empty($elementId) && !$this->isHlbElementExist($elementId, $hlbId)) {
+            $data = array(
+                "UF_USER_ID" => $this->_user()->GetID(),
+                "UF_BLOG_ELEMENT_ID" => $elementId
+            );
+            $result = $this->highloadIblock::add($data);
+        }
+
+        return [
+            'result' => $result,
+        ];
+    }
+
+    /**
+     * @param string $elementId
+     * @param string $hlbId
+     * @return bool[]
+     * @throws Exception
+     */
+    public function checkAction($elementId = '', $hlbId = '')
+    {
+        $this->_checkModules();
+        $this->getHighloadIblock($hlbId);
+
+        return ['result' => $this->isHlbElementExist($elementId, $hlbId)];
     }
 
     public function executeComponent()
@@ -192,13 +240,8 @@ class NfkFavorites extends CBitrixComponent
         $this->_checkModules();
         $this->_request = Application::getInstance()->getContext()->getRequest();
         if ($this->StartResultCache($this->arParams["CACHE_TIME"], [$this->_request->getPost("delete"), $this->_request->getPost("add")])) {
-            $this->getHighloadIblock();
             if (null !== $this->_request->getPost("delete")) {
                 $this->deleteFavorite($this->_request->getPost("delete"));
-                header("Location: {$this->_app()->GetCurPage()}");
-            }
-            if (null !== $this->_request->getPost("add")) {
-                $this->addFavorite($this->_request->getPost("add"));
                 header("Location: {$this->_app()->GetCurPage()}");
             }
             $this->_cache_manager()->RegisterTag("iblock_id_" . $this->arParams["IBLOCK_ID"]);

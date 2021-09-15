@@ -9,7 +9,7 @@ $APPLICATION->SetTitle("Избранные записи");
 		"IBLOCK_TYPE" => "news",
 		"IBLOCK_ID" => "5",
 		"CACHE_TYPE" => "A",
-		"CACHE_TIME" => "3600",
+		"CACHE_TIME" => "360000",
 		"HIGHLOAD_IBLOCK_ID" => "2"
 	),
 	false
